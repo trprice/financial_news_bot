@@ -10,9 +10,24 @@ else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 endif()
 
-# Locate CPR and SQLite3
-find_package(CPR REQUIRED)
-target_link_librariesfind_package(SQLite3 REQUIRED)
+include(FetchContent)
+
+# Download and build CPR
+FetchContent_Declare(
+    cpr
+    GIT_REPOSITORY https://github.com/libcpr/cpr.git
+    GIT_TAG        1.14.2 # Use the latest stable version tag
+)
+FetchContent_MakeAvailable(cpr)
+
+# Download and make Sqlite3 available
+FetchContent_Declare(
+    sqlite3
+    GIT_REPOSITORY https://github.com/sjinks/sqlite3-cmake
+    GIT_TAG        v3.49.1
+)
+
+FetchContent_MakeAvailable(sqlite3)
 
 # List source files (the directory structure we placed earlier)
 set(SOURCE_FILES
