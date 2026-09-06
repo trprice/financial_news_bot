@@ -1,0 +1,20 @@
+services:
+  opencode:
+    image: ghcr.io/anomalyco/opencode
+    container_name: opencode-container
+    volumes:
+      # Mount your local project folder to the container's workspace
+      - ${PWD}:/home/node/workspace
+      # Mount your custom configuration
+      - C:/Users/trpri/.opencode/config/config.json:/root/.config/opencode/config.json:ro
+      # Optional: Mount your git config to keep author credentials
+      - ~/.gitconfig:/home/node/.gitconfig:ro
+    working_dir: /home/node/workspace
+    environment:
+      - OLLAMA_CONTEXT_LENGTH=65536
+    extra_hosts:
+      # Allows the container to resolve 'host.docker.internal' on Linux/macOS/Windows
+      - "host.docker.internal:host-gateway"
+    tty: true
+    stdin_open: true
+

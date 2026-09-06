@@ -1,0 +1,65 @@
+## C++ Terminal Application Plan: Retrieve Tiingo News via API and Store in SQLite
+
+### 1. Project Setup & Dependencies
+- **Initialize CMake project**: Create `CMakeLists.txt` with minimum C++17, set `PROJECT_NAME=tiiingo_news`. Use `find_package(Boost 1.70 REQUIRED COMPONENTS system filesystem thread iostream regex)` for networking and regex handling. Use `find_package(SQLite3 3.0 REQUIRED)` for SQLite access.
+- **Install required libraries**:
+  - Compile Boost from source or use package manager (`apt-get install libboost-all-dev`/`brew install boost`).
+  - Install SQLite3 headers (`apt-get install libsqlite3-dev` or `brew install libsqlite`).
+- **Define build flags**: `-Wall -Wextra -Werror -std=c++17 -pthread` for strict C++14/17 compliance.
+
+### 2. Tiingo API Integration
+- **Obtain API key**: User registers on Tiingo website.
+- **Create wrapper class** `TiingoClient`:
+  - Constructor receives API key, sets base URL (`https://cloud.tiingo.com/api/`).
+  - Method `getNews(string ticker)`:
+    - Validate ticker format (e.g., `^[A-Z]{3}$` for US symbols). 
+    - Construct request URL: `https://cloud.tiingo.com/api/tickers/{ticker}/newsfeed.json?limit=10`.
+    - Use `libcurl` (or `asio::io_service`) to perform HTTPS GET.
+    - Parse JSON response (use `nlohmann::json` lib) to extract `title`, `url`, `publishedAt`.
+    - Handle rate limits: respect `Retry-After` header, exponential backoff.
+
+### 3. SQLite Interaction Layer
+- **Create DB wrapper class** `SQLiteStore`:
+  - Connect to SQLite DB (`database/news.db`).
+  - Define schema: `CREATE TABLE IF NOT EXISTS news (id INTEGER PRIMARY KEY, ticker TEXT, title TEXT, url TEXT, published_at TEXT);`
+  - Method `insertNews(const NewsItem& item)`:
+    - Insert records using prepared statements, handle duplicate ticker checks (upsert via `INSERT OR REPLACE`).
+  - Method `queryNews(string ticker, int start)`:
+    - Return vector of `NewsItem` structs.
+
+### 4. CLI Command Design
+- **Command**: `tiiingo news <ticker>`
+  - Parse arguments with `boost::program_options` to ensure a valid ticker.
+  - Call `TiingoClient::getNews(ticker)`.
+  - Insert retrieved items into SQLite via `SQLiteStore::insertNews`.
+- **Help & Documentation**:
+  - `-h, --help` displays usage.
+  - `-k, --key <API_KEY>` allows overriding default key file.
+- **Configuration**: Read API key from environment variable `TIINGO_API_KEY` or file `.tiingokey` in home directory.
+
+### 5. Error Handling & Resilience
+- **Network errors**: Catch `boost::system::system_error` from curl, retry up to 3 attempts with backoff.
+- **JSON parsing errors**: Validate required fields, log to stderr, exit non-zero.
+- **SQLite errors**: Use `std::fstream` fallback, log errors, abort insertion.
+- **Graceful termination**: On SIGINT, attempt to flush pending inserts, clean up resources.
+- **Logging**: Use `spdlog` (or `log4cpp`) to write to `app.log` with timestamps.
+
+### 6. Optional Scheduler (Background Fetch)
+- **Configure crontab**: Users can enable periodic daily/weekly checks. Example entry: `0 6 * * * /path/to/tiiingo_news news AAPL >> /dev/null 2>&1`.
+- **Implementation**: Extend `TiingoClient` with `performBackgroundFetch()` method, run in a separate thread or via `systemd` service.
+- **Sticky sessions**: Store last fetched date per ticker in SQLite, skip updates if no new data within 24h to reduce API calls.
+
+### 7. Packaging & Deployment
+- **Build**: `mkdir build && cd build && cmake .. && make`.
+- **Dockerfile** (optional) to encapsulate dependencies for cross-platform deployment.
+- **Binary distribution**: Archive compiled binary (`tar.gz`) with `README.md` outlining API key setup.
+
+### 8. Summary Checklist
+- [ ] CMake & Boost installed.
+- [ ] Tiingo API key verified.
+- [ ] SQLite database initialized.
+- [ ] CLI arguments parsed.
+- [ ] Error handling implemented.
+- [ ] Scheduler script and cron job optional.
+
+This plan provides a high-level roadmap to build a terminal C++ tool that pulls financial news via Tiingo and stores it persistently using SQLite, while ensuring robustness, configurability, and ease of deployment.
