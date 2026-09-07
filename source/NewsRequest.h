@@ -1,6 +1,8 @@
 // NewsRequest.h
 #pragma once
+#include <stdexcept>
 #include "Configuration.h"
+#include "NewsResponse.h"
 #include <string>
 
 class TiingoError : public std::runtime_error {

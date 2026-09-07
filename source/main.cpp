@@ -1,10 +1,10 @@
 // main.cpp
+
 #include "Configuration.h"
 #include "NewsRequest.h"
 #include "SqliteHandler.h"
 #include <iostream>
 #include <cpr/cpr.h>
-#include <stdexcept>
 
 int main(int argc, char* argv[]) {
     try {
