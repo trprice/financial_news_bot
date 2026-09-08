@@ -10,15 +10,18 @@ NewsRequest::NewsRequest(const Configuration& cfg)
 
 NewsResponse NewsRequest::fetch() {
     const std::string ENDPOINT = "https://api.tiingo.com/tiingo/news";
-    if (cfg.getTickers().empty()) {
-        throw std::runtime_error("No tickers provided – Tiingo API requires at least one ticker.");
-    }
+    std::string url = ENDPOINT + "?token=" + cfg.getApiToken();
 
     // Build query string (comma separated)
-    std::string url = ENDPOINT + "?token=" + cfg.getApiToken();
     if (!cfg.getTickers().empty()) {
-        url += "&tickers=" + cfg.getTickers()[0];
-        // For multiple tickers, we would need to loop over them or use a batch API (not needed now)
+        url += "&tickers=";
+
+        const std::vector<std::string> tickers = cfg.getTickers();
+        
+        for (const auto& ticker : tickers)
+        {
+            url += ticker + ",";
+        }
     }
 
     auto response = cpr::Get(cpr::Url{url}, cpr::Header{

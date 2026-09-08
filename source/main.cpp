@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
         // 5. Validate API success
         if (!newsReq.hasError()) {
             // 6. Store articles
-            db.bulkInsert(resp.getArticles());
+            db.bulkInsert(resp);
             std::cout << "✅ News stored successfully." << std::endl;
         } else {
             throw std::runtime_error("Tiingo API request failed – see error details above.");

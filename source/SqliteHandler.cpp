@@ -41,7 +41,7 @@ void SqliteHandler::createSchema() {
     ensureDatabaseExists();
 }
 
-void SqliteHandler::bulkInsert(const std::vector<NewsResponse>& responses) {
+void SqliteHandler::bulkInsert(NewsResponse response) {
     sqlite3* db;
     int rc = sqlite3_open_v2(dbPath.c_str(), &db, SQLITE_OPEN_READWRITE, nullptr);
     if (rc) {
@@ -51,38 +51,36 @@ void SqliteHandler::bulkInsert(const std::vector<NewsResponse>& responses) {
     std::vector<std::string> toInsert;
     // Prepare a batch insert (limit per SQLite recommendation ~100 rows per transaction)
     const int BATCH_SIZE = 100;
-    for (size_t i = 0; i < responses.size(); ++i) {
-        const NewsResponse& resp = responses[i];
-        const std::vector<Article>& articles = resp.getArticles();
 
-        for (const auto& article : articles) {
-            std::ostringstream oss;
-            oss << "INSERT INTO articles (ticker, title, description, url, pubDate) "
-                 << "VALUES (?, ?, ?, ?, ?)";
-            const char* insertStmt = oss.str().c_str();
+    const std::vector<Article>& articles = response.getArticles();
 
-            std::vector<void*> bindArgs[5] = {
-                (void*)resp.getTicker().c_str(),
-                (void*)article.title.c_str(),
-                (void*)article.description.c_str(),
-                (void*)article.url.c_str(),
-                (void*)article.pubDate.c_str()
-            };
+    for (const auto& article : articles) {
+        std::ostringstream oss;
+        oss << "INSERT INTO articles (ticker, title, description, url, pubDate) "
+                << "VALUES (?, ?, ?, ?, ?)";
+        const char* insertStmt = oss.str().c_str();
 
-            rc = sqlite3_exec(db, insertStmt, nullptr, bindArgs, nullptr);
+        std::vector<void*> bindArgs[5] = {
+            (void*)article.ticker.c_str(),
+            (void*)article.title.c_str(),
+            (void*)article.description.c_str(),
+            (void*)article.url.c_str(),
+            (void*)article.pubDate.c_str()
+        };
+
+        rc = sqlite3_exec(db, insertStmt, nullptr, bindArgs, nullptr);
+        if (rc) {
+            throw std::runtime_error("SQLite error inserting row: " + std::string(sqlite3_errmsg(db)));
+        }
+
+        // Track batch size
+        if (++toInsert.size() >= BATCH_SIZE) {
+            // Commit and reset
+            rc = sqlite3_exec(db, "COMMIT", nullptr, nullptr, nullptr);
             if (rc) {
-                throw std::runtime_error("SQLite error inserting row: " + std::string(sqlite3_errmsg(db)));
+                throw std::runtime_error("Failed to commit transaction: " + std::string(sqlite3_errmsg(db)));
             }
-
-            // Track batch size
-            if (++toInsert.size() >= BATCH_SIZE) {
-                // Commit and reset
-                rc = sqlite3_exec(db, "COMMIT", nullptr, nullptr, nullptr);
-                if (rc) {
-                    throw std::runtime_error("Failed to commit transaction: " + std::string(sqlite3_errmsg(db)));
-                }
-                toInsert.clear();
-            }
+            toInsert.clear();
         }
     }
 

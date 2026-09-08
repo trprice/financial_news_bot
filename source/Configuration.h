@@ -13,7 +13,7 @@ public:
 
     // Getters
     std::string getApiToken() const { return apiToken; }
-    std::vector<std::string> getTickers() const { return tickers; }
+    const std::vector<std::string>& getTickers() const { return tickers; }
 
 private:
     std::string filename;
