@@ -14,7 +14,6 @@ class NewsRequest {
 public:
     explicit NewsRequest(const Configuration& cfg);
     NewsResponse fetch();
-    bool hasError() const;
 
 private:
     Configuration cfg;

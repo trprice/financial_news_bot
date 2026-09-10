@@ -10,4 +10,7 @@ public:
     void ensureDatabaseExists();
     void createSchema();
     void bulkInsert(NewsResponse);
+
+private:
+    std::string dbPath;
 };

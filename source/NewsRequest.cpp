@@ -10,21 +10,25 @@ NewsRequest::NewsRequest(const Configuration& cfg)
 
 NewsResponse NewsRequest::fetch() {
     const std::string ENDPOINT = "https://api.tiingo.com/tiingo/news";
-    std::string url = ENDPOINT + "?token=" + cfg.getApiToken();
 
-    // Build query string (comma separated)
-    if (!cfg.getTickers().empty()) {
-        url += "&tickers=";
+    cpr::Parameters params{{"token", cfg.getApiToken()}};
 
-        const std::vector<std::string> tickers = cfg.getTickers();
-        
+    // Tiingo expects tickers as a single comma-separated parameter value
+    const std::vector<std::string>& tickers = cfg.getTickers();
+    if (!tickers.empty()) {
+        std::string tickerList;
         for (const auto& ticker : tickers)
         {
-            url += ticker + ",";
+            if (&ticker != &tickers.front())
+            {
+                tickerList += ",";
+            }
+            tickerList += ticker;
         }
+        params.Add(cpr::Parameter{"tickers", tickerList});
     }
 
-    auto response = cpr::Get(cpr::Url{url}, cpr::Header{
+    auto response = cpr::Get(cpr::Url{ENDPOINT}, params, cpr::Header{
         {"Accept", "application/json"}
     });
 
@@ -42,8 +46,4 @@ NewsResponse NewsRequest::fetch() {
     }
 
     return NewsResponse(j["ticker"].get<std::string>(), j["messages"].get<std::vector<nlohmann::json>>());
-}
-
-bool NewsRequest::hasError() const {
-    return false; // In fetch() we already validated HTTP & Tiingo status
 }
