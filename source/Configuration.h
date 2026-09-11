@@ -6,7 +6,7 @@
 class Configuration {
 public:
     // Default filename; can be overridden via command-line
-    Configuration(const std::string& filename = "config.json");
+    Configuration(const std::string& filename = "config.json") {}
 
     // Parse JSON into member variables
     void load();

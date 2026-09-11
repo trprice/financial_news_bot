@@ -52,5 +52,5 @@ set(SOURCE_FILES
     source/SqliteHandler.h)
 
 add_executable(financial_news_bot ${SOURCE_FILES})
-target_link_libraries(financial_news_bot PRIVATE CPR SQLite3)
+target_link_libraries(financial_news_bot PRIVATE cpr SQLite3)
 target_include_directories(financial_news_bot PRIVATE "${cpr_SOURCE_DIR}/include" "${cpr_BINARY_DIR}/cpr_generated_includes" "${curl_SOURCE_DIR}/include" "${nlohmann_json_SOURCE_DIR}/include")
