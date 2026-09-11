@@ -40,9 +40,9 @@ int main(int argc, char* argv[]) {
 
         // 5. Store articles
         db.bulkInsert(resp);
-        std::cout << "✅ News stored successfully." << std::endl;
+        std::cout << "News stored successfully." << std::endl;
     } catch (const std::exception& ex) {
-        std::cerr << "❌ Error: " << ex.what() << std::endl;
+        std::cerr << "Error: " << ex.what() << std::endl;
         return 1;
     }
 
