@@ -1,6 +1,5 @@
-#include "Catch2/Catch2WithMain.h"
+#include "catch2/catch_test_macros.hpp"
 #include "Configuration.h"
-#include "Configuration.cpp"
 #include <iostream>
 
 TEST_CASE("Configuration can be initialized and has getters") {
