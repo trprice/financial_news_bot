@@ -39,9 +39,17 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(nlohmann_json)
 
-# List source files (the directory structure we placed earlier)
-set(SOURCE_FILES
-    source/main.cpp
+# Download Catch2 (header-only) for unit testing
+FetchContent_Declare(
+    catch2
+    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+    GIT_TAG        v3.5.0  # Latest stable tag
+)
+
+FetchContent_MakeAvailable(catch2)
+
+# Library source files (except main.cpp which belongs to the executable)
+set(LIB_SOURCE_FILES
     source/Configuration.cpp
     source/Configuration.h
     source/NewsRequest.cpp
@@ -49,8 +57,33 @@ set(SOURCE_FILES
     source/NewsResponse.cpp
     source/NewsResponse.h
     source/SqliteHandler.cpp
-    source/SqliteHandler.h)
+    source/SqliteHandler.h
+)
 
-add_executable(financial_news_bot ${SOURCE_FILES})
-target_link_libraries(financial_news_bot PRIVATE cpr SQLite3)
-target_include_directories(financial_news_bot PRIVATE "${cpr_SOURCE_DIR}/include" "${cpr_BINARY_DIR}/cpr_generated_includes" "${curl_SOURCE_DIR}/include" "${nlohmann_json_SOURCE_DIR}/include")
+set(EXEC_SOURCE_FILES
+    source/main.cpp
+)
+
+# Create library from non-main source files
+add_library(financial_news_bot_lib ${LIB_SOURCE_FILES})
+target_link_libraries(financial_news_bot_lib PRIVATE cpr SQLite3)
+target_include_directories(financial_news_bot_lib PRIVATE "${cpr_SOURCE_DIR}/include" "${cpr_BINARY_DIR}/cpr_generated_includes" "${curl_SOURCE_DIR}/include" "${nlohmann_json_SOURCE_DIR}/include")
+
+# Create main executable from main.cpp
+add_executable(financial_news_bot ${EXEC_SOURCE_FILES})
+target_link_libraries(financial_news_bot PRIVATE financial_news_bot_lib)
+
+# Optional: Add test target if test sources exist
+file(GLOB TEST_SOURCES "tests/*.cpp")
+if(TEST_SOURCES)
+    add_executable(financial_news_bot_test ${TEST_SOURCES})
+    target_link_libraries(financial_news_bot_test PRIVATE Catch2::Catch2WithMain financial_news_bot_lib)
+    target_include_directories(financial_news_bot_test PRIVATE
+        "${catch2_SOURCE_DIR}/include"
+        "${cpr_SOURCE_DIR}/include"
+        "${cpr_BINARY_DIR}/cpr_generated_includes"
+        "${curl_SOURCE_DIR}/include"
+        "${nlohmann_json_SOURCE_DIR}/include"
+    )
+    add_test(NAME financial_news_bot_test COMMAND financial_news_bot_test)
+endif()
