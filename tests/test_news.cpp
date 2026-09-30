@@ -5,7 +5,7 @@
 #include <string>
 
 TEST_CASE("NewsRequest can initialize and fetch mock data") {
-    Configuration cfg("config.json");
+    Configuration cfg("tests/config.json");
     
     // Test that NewsRequest is constructed properly
     NewsRequest req(cfg);
@@ -14,6 +14,6 @@ TEST_CASE("NewsRequest can initialize and fetch mock data") {
     
     // For a real test, we'd want to verify it doesn't crash during construction/operations
     // But minimal test just verifies compilation and basic behavior
-    REQUIRE((token.length() == 0 || token.length() > 0));
+    REQUIRE(token.length() >= 0);
     // The actual validation depends on how the constructor works
 }

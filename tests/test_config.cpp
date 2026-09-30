@@ -3,7 +3,7 @@
 #include <iostream>
 
 TEST_CASE("Configuration can be initialized and has getters") {
-    Configuration cfg("config.json");
+    Configuration cfg("tests/config.json");
     
     // Test that getApiToken() works and returns default value
     std::string token = cfg.getApiToken();
