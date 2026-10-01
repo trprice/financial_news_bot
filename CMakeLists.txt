@@ -50,6 +50,7 @@ if(TEST_SOURCES)
     target_link_libraries(financial_news_bot_test PRIVATE Catch2::Catch2WithMain financial_news_bot_lib)
     target_include_directories(financial_news_bot_test PRIVATE
         "include"
+        "tests/include"
         "${catch2_SOURCE_DIR}/include"
         "${cpr_SOURCE_DIR}/include"
         "${cpr_BINARY_DIR}/cpr_generated_includes"
