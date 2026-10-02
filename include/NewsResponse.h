@@ -14,15 +14,18 @@ struct Article {
 
 class NewsResponse {
 public:
-    NewsResponse(const std::string& ticker);
+    NewsResponse();
     explicit NewsResponse(const std::string& ticker,
-                          const std::vector<Article>& articles) : ticker(ticker), articles(articles) {}
+                          const std::vector<Article>& articles) : mTicker(ticker), mArticles(articles) {}
 
-    const std::vector<Article>& getArticles() const { return articles; }
-    int getStatus() const { return status; } // status = 0 on success
+    const std::vector<Article>& getArticles() const { return mArticles; }
+    void setArticles(std::vector<Article> articles) { mArticles = articles; }
+
+    int getStatus() const { return mStatus; } // status = 0 on success
+    void setStatus(int status) { mStatus = status; }
 
 private:
-    std::string ticker;
-    int status = 0;               // 0 = success, non‑zero = error
-    std::vector<Article> articles;
+    std::string mTicker;
+    int mStatus = 0;               // 0 = success, non‑zero = error
+    std::vector<Article> mArticles;
 };

@@ -44,13 +44,17 @@ target_include_directories(financial_news_bot PRIVATE "include")
 target_link_libraries(financial_news_bot PRIVATE financial_news_bot_lib)
 
 # Optional: Add test target if test sources exist
-file(GLOB TEST_SOURCES "tests/*.cpp")
+file(GLOB TEST_SOURCES 
+     "tests/*.cpp"
+     "mongoose/*.c"
+    )
 if(TEST_SOURCES)
     add_executable(financial_news_bot_test ${TEST_SOURCES})
     target_link_libraries(financial_news_bot_test PRIVATE Catch2::Catch2WithMain financial_news_bot_lib)
     target_include_directories(financial_news_bot_test PRIVATE
         "include"
         "tests/include"
+        "mongoose"
         "${catch2_SOURCE_DIR}/include"
         "${cpr_SOURCE_DIR}/include"
         "${cpr_BINARY_DIR}/cpr_generated_includes"

@@ -13,12 +13,14 @@ public:
 
     // Getters
     std::string getApiToken() const { return apiToken; }
+    std::string getEndpoint() const { return endPoint; }
     const std::vector<std::string>& getTickers() const { return tickers; }
 
 private:
     std::string filename;
     std::string apiToken;
     std::vector<std::string> tickers;
+    std::string endPoint;
 
     void parse();
 };
