@@ -2,22 +2,24 @@
 #define HTTP_SERVER_HPP
 
 #include "mongoose.h"
+#include <string>
 
 // HttpServer class declaration for testing tier
 class HttpServer {
 public:
     // Base URL getter
-    static std::string GetBaseUrl();
+    std::string GetBaseUrl();
 
     // Port getter
-    static uint16_t GetPort();
+    uint16_t GetPort();
 
     // Server initialization
-    static mg_connection* initServer(mg_mgr* mgr, mg_event_handler_t event_handler);
+    mg_connection* initServer(mg_mgr* mgr, mg_event_handler_t event_handler);
 
     // Connection acceptance
-    static void acceptConnection(mg_connection* conn);
+    void acceptConnection(mg_connection* conn);
 
+private:
     // Core HTTP request handlers
     static void OnRequestNewsGet(mg_connection* conn, mg_http_message* msg);
     static void OnRequestRoot(mg_connection* conn, mg_http_message* msg);

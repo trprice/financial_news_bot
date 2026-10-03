@@ -1,9 +1,8 @@
 #include "httpServer.hpp"
 #include "catch2/catch_test_macros.hpp"
 #include "Configuration.h"
-#include "TiingoNewsRequest.h"
-#include "TiingoNewsResponse.h"
-#include <string>
+#include "NewsRequest.h"
+#include "NewsResponse.h"
 
 std::string HttpServer::GetBaseUrl() {
     return "http://127.0.0.1:" + std::to_string(GetPort());
