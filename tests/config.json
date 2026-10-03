@@ -1,4 +1,4 @@
 {
   "tiingo_token" : "abcd1234",
-  "endpoint" : "http://127.0.0.1:61938"
+  "endpoint" : "http://127.0.0.1:61938/tiingo/news"
 }
