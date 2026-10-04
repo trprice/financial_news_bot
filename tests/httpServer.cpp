@@ -26,7 +26,7 @@ void HttpServer::Start() {
         const std::lock_guard<std::mutex> lock(startupMutex);
         startupComplete = false;
         listenFailed = false;
-    }
+    } // Lock goes out of scope here and unlocks as part of destruction
 
     serverThread = std::thread(&HttpServer::loop, this);
 
@@ -73,7 +73,8 @@ void HttpServer::loop() {
         const std::lock_guard<std::mutex> lock(startupMutex);
         listenFailed = (conn == nullptr);
         startupComplete = true;
-    }
+    } // Lock goes out of scope here and unlocks as part of destruction
+
     startupCv.notify_all();
 
     while (conn != nullptr && isRunning.load()) {
@@ -139,18 +140,18 @@ void HttpServer::OnRequestNewsGet(mg_connection* conn, mg_http_message* /*msg*/)
     // title, url, description, publishedDate, crawlDate, source (strings)
     // and tickers, tags (string arrays).
     const std::string response = R"([
-  {
-    "id": 1,
-    "title": "Apple Reports Strong Earnings",
-    "url": "https://example.com/article/AAPL-123",
-    "description": "Apple reported strong quarterly earnings with revenue exceeding expectations.",
-    "publishedDate": "2026-01-15T12:30:00+00:00",
-    "crawlDate": "2026-01-15T12:31:00+00:00",
-    "source": "example.com",
-    "tickers": ["AAPL"],
-    "tags": ["earnings", "technology"]
-  }
-])";
+      {
+        "id": 1,
+        "title": "Apple Reports Strong Earnings",
+        "url": "https://example.com/article/AAPL-123",
+        "description": "Apple reported strong quarterly earnings with revenue exceeding expectations.",
+        "publishedDate": "2026-01-15T12:30:00+00:00",
+        "crawlDate": "2026-01-15T12:31:00+00:00",
+        "source": "example.com",
+        "tickers": ["AAPL"],
+        "tags": ["earnings", "technology"]
+      }
+    ])";
     mg_http_reply(conn, 200, "Content-Type: application/json\r\n", "%s", response.c_str());
 }
 
