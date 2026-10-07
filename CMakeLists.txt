@@ -23,6 +23,8 @@ set(LIB_SOURCE_FILES
     source/NewsRequest.cpp
     source/NewsResponse.cpp
     source/SqliteHandler.cpp
+    include/APIRequest.h
+    include/APIResponse.h
     include/Configuration.h
     include/NewsRequest.h
     include/NewsResponse.h
@@ -36,6 +38,7 @@ set(EXEC_SOURCE_FILES
 # Create library from non-main source files
 add_library(financial_news_bot_lib ${LIB_SOURCE_FILES})
 target_link_libraries(financial_news_bot_lib PRIVATE cpr::cpr SQLite3::SQLite3)
+target_link_libraries(financial_news_bot_lib PUBLIC nlohmann_json::nlohmann_json) # APIResponse.h exposes nlohmann::json
 target_include_directories(financial_news_bot_lib PRIVATE "include")
 #target_include_directories(financial_news_bot_lib PRIVATE "${cpr_SOURCE_DIR}/include" "${cpr_BINARY_DIR}/cpr_generated_includes" "${curl_SOURCE_DIR}/include" "${nlohmann_json_SOURCE_DIR}/include")
 

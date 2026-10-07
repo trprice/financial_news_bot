@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
         NewsRequest newsReq(cfg);
         NewsResponse resp = [&]() {
             try {
-                return newsReq.fetch();
+                return newsReq.fetchNews();
             } catch (const TiingoError& ex) {
                 throw std::runtime_error(std::string("Tiingo API returned an error: ") + ex.what());
             } catch (const nlohmann::json::exception& ex) {

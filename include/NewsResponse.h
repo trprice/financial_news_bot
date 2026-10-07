@@ -2,6 +2,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include "APIResponse.h"
 
 struct Article {
     std::string title;
@@ -12,7 +13,7 @@ struct Article {
     std::string ticker;
 };
 
-class NewsResponse {
+class NewsResponse : public APIResponse {
 public:
     NewsResponse();
     explicit NewsResponse(const std::string& ticker,
@@ -20,6 +21,9 @@ public:
 
     const std::vector<Article>& getArticles() const { return mArticles; }
     void setArticles(std::vector<Article> articles) { mArticles = articles; }
+
+    // {"status": int, "ticker": string, "articles": [{title, description, url, source, pubDate, ticker}]}
+    nlohmann::json GetResponse() const override;
 
     int getStatus() const { return mStatus; } // status = 0 on success
     void setStatus(int status) { mStatus = status; }

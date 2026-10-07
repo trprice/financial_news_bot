@@ -8,7 +8,15 @@
 NewsRequest::NewsRequest(const Configuration& cfg)
     : cfg(cfg) {}
 
-NewsResponse NewsRequest::fetch() {
+std::unique_ptr<APIResponse> NewsRequest::fetch() {
+    return std::make_unique<NewsResponse>(fetchNews());
+}
+
+std::unique_ptr<APIResponse> NewsRequest::send() {
+    throw std::logic_error("NewsRequest does not support send()");
+}
+
+NewsResponse NewsRequest::fetchNews() {
     cpr::Parameters params{{"token", cfg.getApiToken()}};
 
     // Tiingo expects tickers as a single comma-separated parameter value
@@ -33,6 +41,7 @@ NewsResponse NewsRequest::fetch() {
     NewsResponse lResponse;
 
     if (response.status_code != 200) {
+        std::cout << "Status code wasn't 200. Endpoint: " << cfg.getEndpoint() << " Status code: " << response.status_code << std::endl;
         lResponse.setStatus(-1);
     }
     else

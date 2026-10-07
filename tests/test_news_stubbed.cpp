@@ -16,7 +16,7 @@ TEST_CASE("NewsRequest stubbed server objects compile", "[News]") {
       Configuration cfg("tests/config.json");
       NewsRequest req(cfg);
 
-      NewsResponse lResponse = req.fetch();
+      NewsResponse lResponse = req.fetchNews();
 
       REQUIRE( lResponse.getStatus() == 0 );
 
@@ -47,5 +47,20 @@ TEST_CASE("NewsRequest stubbed server objects compile", "[News]") {
       REQUIRE( lArticles[0].pubDate.compare("2026-01-15T12:30:00+00:00") == 0 );
       REQUIRE( lArticles[0].source.compare("example.com") == 0 );
       REQUIRE( lArticles[0].ticker.compare("AAPL") == 0 );
+    }
+
+    SECTION( "fetch() through the APIRequest interface returns the articles as json" )
+    {
+      Configuration cfg("tests/config.json");
+      NewsRequest req(cfg);
+      APIRequest& api = req;
+
+      std::unique_ptr<APIResponse> lResponse = api.fetch();
+      nlohmann::json lJson = lResponse->GetResponse();
+
+      REQUIRE( lJson["status"] == 0 );
+      REQUIRE( lJson["articles"].size() == 1 );
+      REQUIRE( lJson["articles"][0]["title"] == "Apple Reports Strong Earnings" );
+      REQUIRE( lJson["articles"][0]["ticker"] == "AAPL" );
     }
 }
